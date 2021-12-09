@@ -11,7 +11,7 @@ static char* string_copy(const char *from) {
         char *to = new(std::nothrow) char[size];
         //for(unsigned i = 0; i < size; i++)
         //    to[i] = from[i];
-        strcpy(to, size, from);
+        strcpy(to, (const char*)from);
         return to;
     }
     return nullptr;
