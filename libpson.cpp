@@ -9,9 +9,11 @@ static char* string_copy(const char *from) {
     if(from!=nullptr){
         unsigned size = strlen(from)+1;
         char *to = new(std::nothrow) char[size];
-        //for(unsigned i = 0; i < size; i++)
-        //    to[i] = from[i];
+        #ifndef __STDC_SECURE_LIB__
         strcpy(to, (const char*)from);
+        #else
+        strcpy_s(to, size, (const char*)from);
+        #endif
         return to;
     }
     return nullptr;
