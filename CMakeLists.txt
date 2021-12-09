@@ -14,4 +14,4 @@ add_executable(test.libPSON
 target_link_libraries(test.libPSON libPSON)
 
 enable_testing()
-add_test(test.libPSON COMMAND test.libPSON)
+add_test(NAME test.libPSON COMMAND test.libPSON)
