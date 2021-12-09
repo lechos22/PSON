@@ -1,0 +1,4 @@
+D:/Kody/PSON/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Kody/PSON/cmake-build-debug/CMakeFiles/libPSON.dir
+D:/Kody/PSON/cmake-build-debug/CMakeFiles/test.libPSON.dir
+D:/Kody/PSON/cmake-build-debug/CMakeFiles/rebuild_cache.dir

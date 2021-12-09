@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../libpson.hpp
+cstdint
+-
+ostream
+-
+
+D:/Kody/PSON/test.libpson.cpp
+iostream
+-
+filesystem
+-
+fstream
+-
+libpson.hpp
+-
+
