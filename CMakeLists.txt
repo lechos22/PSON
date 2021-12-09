@@ -12,3 +12,6 @@ add_library(libPSON STATIC libpson.hpp libpson.cpp)
 add_executable(test.libPSON
         libpson.hpp test.libpson.cpp)
 target_link_libraries(test.libPSON libPSON)
+
+enable_testing
+add_test(test.libPSON COMMAND test.libPSON)
