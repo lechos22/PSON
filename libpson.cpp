@@ -122,7 +122,7 @@ PSON::Object::Object(const char *src) {
     for(unsigned i = 0; src[i]; i++){
         switch(state){
             case PARSER_LIST:
-                if('a'<=src[i] && src[i]<='z' || 'A'<=src[i] && src[i]<='Z' || src[i]=='_') {
+                if(('a'<=src[i] && src[i]<='z') || ('A'<=src[i] && src[i]<='Z') || src[i]=='_') {
                     state = PARSER_ID;
                     parser_id.top() = src[i];
                 }
@@ -148,7 +148,7 @@ PSON::Object::Object(const char *src) {
                 }
                 break;
             case PARSER_ID:
-                if('a'<=src[i] && src[i]<='z' || 'A'<=src[i] && src[i]<='Z' || src[i]=='_')
+                if(('a'<=src[i] && src[i]<='z') || ('A'<=src[i] && src[i]<='Z') || src[i]=='_')
                     parser_id.top() += src[i];
                 else{
                     state = PARSER_LIST;
