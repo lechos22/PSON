@@ -25,11 +25,12 @@ include_directories(.)
 
 file(COPY examples DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(libPSON STATIC libpson.hpp libpson.cpp)
+add_library(PSON STATIC libpson.hpp libpson.cpp)
 
 add_executable(test.libPSON
         libpson.hpp test.libpson.cpp)
-target_link_libraries(test.libPSON libPSON)
+target_link_libraries(test.libPSON PSON)
 
 enable_testing()
 add_test(NAME test.libPSON COMMAND test.libPSON)
+
