@@ -57,5 +57,5 @@ int main(){
             cout << "\"" << i << "\" Passed!\n";
         }
     }
-    return 0;
+    return exit_code;
 }
