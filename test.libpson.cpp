@@ -5,6 +5,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <chrono>
 #include <libpson.hpp>
 
 using namespace std;
@@ -19,12 +20,21 @@ int main(){
                 content += (char)file.get();
             }
             file.close();
-            auto obj = PSON::Object(content.c_str());
-            cout << obj << '\n';
+            auto time_before = chrono::high_resolution_clock::now();
+            auto obj = PSON::parse(content.c_str());
+            auto time_after = chrono::high_resolution_clock::now();
+            if(entry.path().filename().c_str()[0] != '.')
+                cout << "Run " << entry.path().filename().string() << " in "
+                     << duration_cast<chrono::duration<double>>(time_after - time_before).count() * 1000
+                     << " ms \n\tResult: " << obj << '\n';
+            else
+                cout << "Run " << entry.path().filename().string() << " in "
+                     << duration_cast<chrono::duration<double>>(time_after - time_before).count() * 1000
+                     << " ms" << '\n';
         }
     }
     catch(filesystem::filesystem_error& e){
-        cout<<"filesystem error!\n";
+        cout << "Filesystem error!\n";
     }
     return 0;
 }

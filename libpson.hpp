@@ -9,8 +9,7 @@
 #include <ostream>
 
 extern "C++" {
-class PSON {
-public:
+namespace PSON {
     // Structure declarations
     struct Array;
     struct Object;
@@ -48,13 +47,13 @@ public:
 
         Object(const char* name, Array* value);
 
-        explicit Object(const char *src);
-
-        friend std::ostream& operator<<(std::ostream& os, PSON::Object obj);
+        explicit operator std::string() const;
     };
 
+    Object parse(const char *src);
 };
-
 }
+
+std::ostream& operator<<(std::ostream& os, PSON::Object obj);
 
 #endif //PSON_LIBPSON_H

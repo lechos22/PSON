@@ -2,24 +2,29 @@
 #include <stack>
 #include <string>
 #include <cstring>
+#include <sstream>
 
 extern "C++" {
+using std::string;
 
 static char* string_copy(const char *from) {
-    if(from!=nullptr){
-        unsigned size = strlen(from)+1;
-        char *to = new(std::nothrow) char[size];
-        #ifndef __STDC_SECURE_LIB__
-        strcpy(to, (const char*)from);
-        #else
-        strcpy_s(to, size, (const char*)from);
-        #endif
-        return to;
-    }
-    return nullptr;
+    if(from == nullptr)
+        return nullptr;
+    unsigned size = strlen(from)+1;
+    if(size == 1)
+        return nullptr;
+    char *to = new(std::nothrow) char[size];
+    #ifndef __STDC_SECURE_LIB__
+    strcpy(to, (const char*)from);
+    #else
+    strcpy_s(to, size, (const char*)from);
+    #endif
+    return to;
 }
 
 static char* string_escape(const char *from) {
+    if(from == nullptr)
+        return nullptr;
     unsigned size = 1;
     for(unsigned i = 0; from[i]; i++){
         switch (from[i]) {
@@ -35,6 +40,8 @@ static char* string_escape(const char *from) {
                 break;
         }
     }
+    if(size == 1)
+        return nullptr;
     char* to = new(std::nothrow) char[size];
     for(unsigned ti=0,fi=0; from[fi]; ti++,fi++){
         switch (from[fi]) {
@@ -104,7 +111,7 @@ PSON::Object::Object(const char *name, Array* value) {
     this->array = value;
 }
 
-PSON::Object::Object(const char *src) {
+PSON::Object PSON::parse(const char *src) {
     enum state_t : std::uint8_t{
         PARSER_LIST,
         PARSER_ID,
@@ -114,15 +121,19 @@ PSON::Object::Object(const char *src) {
     std::stack<PSON::Object> objects;
     std::stack<unsigned> sizes;
     sizes.push(0);
-    std::stack<std::string> parser_id;
+    std::stack<string> parser_id;
     parser_id.push("__root__");
     parser_id.push("");
-    std::string parser_value;
+    string parser_value;
 
     for(unsigned i = 0; src[i]; i++){
         switch(state){
             case PARSER_LIST:
-                if(('a'<=src[i] && src[i]<='z') || ('A'<=src[i] && src[i]<='Z') || src[i]=='_') {
+                if(
+                        ('a' <= src[i] and src[i] <= 'z')
+                        or ('A' <= src[i] and src[i] <= 'Z')
+                        or src[i] == '_'
+                        ){
                     state = PARSER_ID;
                     parser_id.top() = src[i];
                 }
@@ -148,7 +159,11 @@ PSON::Object::Object(const char *src) {
                 }
                 break;
             case PARSER_ID:
-                if(('a'<=src[i] && src[i]<='z') || ('A'<=src[i] && src[i]<='Z') || src[i]=='_')
+                if(
+                        ('a'<=src[i] and src[i]<='z')
+                        or ('A'<=src[i] and src[i]<='Z')
+                        or src[i]=='_'
+                        )
                     parser_id.top() += src[i];
                 else{
                     state = PARSER_LIST;
@@ -156,9 +171,9 @@ PSON::Object::Object(const char *src) {
                 }
                 break;
             case PARSER_VALUE:
-                if(src[i]=='\'')
+                if(src[i] == '\'')
                     state = PARSER_TYPE;
-                else if(src[i]=='\\'){
+                else if(src[i] == '\\'){
                     i++;
                     switch(src[i]){
                         case '\'':
@@ -186,13 +201,13 @@ PSON::Object::Object(const char *src) {
                 break;
             case PARSER_TYPE:
                 switch (src[i]) {
-                    case INT:
+                    case Object::INT:
                         objects.push(PSON::Object(parser_id.top().c_str(), std::stoi(parser_value)));
                         break;
-                    case FLOAT:
+                    case Object::FLOAT:
                         objects.push(PSON::Object(parser_id.top().c_str(), std::stof(parser_value)));
                         break;
-                    case STRING:
+                    case Object::STRING:
                         objects.push(PSON::Object(parser_id.top().c_str(), (char*)parser_value.c_str()));
                         break;
                 }
@@ -208,36 +223,46 @@ PSON::Object::Object(const char *src) {
         up.array->value[sizes.top() - i] = objects.top();
         objects.pop();
     }
-    *this=up;
     sizes.pop();
+    return up;
 }
 
-std::ostream& operator<<(std::ostream& os, PSON::Object obj) {
-    if(strcmp(obj.name,"__root__") != 0){
-        os << obj.name;
-        if(obj.type == PSON::Object::INT)
-            os << '\'' << obj.i << '\'' << (char)obj.type;
-        else if(obj.type == PSON::Object::FLOAT)
-            os << '\'' << obj.f << '\'' << (char)obj.type;
-        else if(obj.type == PSON::Object::STRING){
-            char* tmp = string_escape(obj.str);
-            os << '\'' << tmp << '\'' << (char)obj.type;
-            delete[] tmp;
-        }
-        else if(obj.type == PSON::Object::ARRAY){
-            os << '(';
-            for(unsigned i=0; i < obj.array->size - 1; i++){
-                os << obj.array->value[i] << ' ';
+PSON::Object::operator std::string() const {
+    std::stringstream ss;
+    if(this->name == nullptr || strcmp(this->name,"__root__") != 0){
+        if(this->name)
+            ss << this->name;
+        if(this->type == PSON::Object::INT)
+            ss << '\'' << this->i << '\'' << (char)this->type;
+        else if(this->type == PSON::Object::FLOAT)
+            ss << "\'" << this->f << "\'" << (char)this->type;
+        else if(this->type == PSON::Object::STRING){
+            if(this->str){
+                char* tmp = string_escape(this->str);
+                ss << '\'' << (string)tmp << '\'' << (char)this->type;
+                delete[] tmp;
+            }else{
+                ss << "\'\'" << (char)this->type;
             }
-            os << obj.array->value[obj.array->size - 1] << ')';
+        }
+        else if(this->type == PSON::Object::ARRAY){
+            ss << '(';
+            for(unsigned i=0; i < this->array->size - 1; i++){
+                ss << this->array->value[i] << ' ';
+            }
+            ss << this->array->value[this->array->size - 1] << ')';
         }
     }else{
-        for(unsigned i=0; i < obj.array->size - 1; i++){
-            os << obj.array->value[i] << ' ';
+        for(unsigned i=0; i < this->array->size - 1; i++){
+            ss << this->array->value[i] << ' ';
         }
-        os << obj.array->value[obj.array->size - 1];
+        ss << this->array->value[this->array->size - 1];
     }
-    return os;
+    return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, PSON::Object obj){
+    return os<<(string)obj;
 }
 
 }
