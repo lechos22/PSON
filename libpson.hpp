@@ -52,7 +52,7 @@ namespace PSON {
     };
 
     struct SyntaxError :std::exception{
-        [[nodiscard]] const char * what() const override;
+        [[nodiscard]] const char * what() const noexcept override;
     };
 
     Object parse(const char *src);

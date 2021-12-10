@@ -230,7 +230,7 @@ PSON::Object PSON::parse(const char *src) {
     return up;
 }
 
-const char *PSON::SyntaxError::what() const {
+const char *PSON::SyntaxError::what() const noexcept{
     return "PSON::SyntaxError";
 }
 
