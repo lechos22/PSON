@@ -112,6 +112,9 @@ PSON::Object::Object(const char *name, Array* value) {
 }
 
 PSON::Object PSON::parse(const char *src) {
+    if(!PSON::verify(src)){
+        throw PSON::SyntaxError();
+    }
     enum state_t : std::uint8_t{
         PARSER_LIST,
         PARSER_ID,
@@ -227,6 +230,45 @@ PSON::Object PSON::parse(const char *src) {
     return up;
 }
 
+const char *PSON::SyntaxError::what() const {
+    return "PSON::SyntaxError";
+}
+
+bool PSON::verify(const char* src){
+    unsigned len = strlen(src);
+    int depth = 0;
+    bool val_def = false;
+    for(unsigned i=0; i<len; i++){
+        if(!val_def){
+            if(src[i] == '(')
+                depth++;
+            else if(src[i] == ')'){
+                if(--depth < 0)
+                    return false;
+            }
+        }
+        else if(src[i] == '\\'){
+            i++;
+        }
+        if(src[i] == '\''){
+            if(val_def){
+                switch (src[++i]) {
+                    case PSON::Object::STRING:
+                    case PSON::Object::INT:
+                    case PSON::Object::FLOAT:
+                        val_def = false;
+                        break;
+                    default:
+                        return false;
+                }
+            }else val_def = true;
+        }
+    }
+    if(depth or val_def)
+        return false;
+    return true;
+}
+
 PSON::Object::operator std::string() const {
     std::stringstream ss;
     if(this->name == nullptr || strcmp(this->name,"__root__") != 0){
@@ -266,3 +308,4 @@ std::ostream& operator<<(std::ostream& os, PSON::Object obj){
 }
 
 }
+

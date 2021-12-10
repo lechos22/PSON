@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <ostream>
+#include <exception>
 
 extern "C++" {
 namespace PSON {
@@ -50,7 +51,13 @@ namespace PSON {
         explicit operator std::string() const;
     };
 
+    struct SyntaxError :std::exception{
+        [[nodiscard]] const char * what() const override;
+    };
+
     Object parse(const char *src);
+
+    bool verify(const char* src);
 };
 }
 
