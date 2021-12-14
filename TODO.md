@@ -1,3 +1,1 @@
 # TODO
-
-- Escape hexes
