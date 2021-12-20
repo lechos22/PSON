@@ -16,6 +16,7 @@ namespace PSON {
     using std::string;
     using std::vector;
     using std::unordered_map;
+    using std::nullptr_t;
     // Structure declarations
     struct Map;
     struct Array;
@@ -63,9 +64,10 @@ namespace PSON {
     struct Map : public unordered_map<string,Object>{};
     struct Array: public vector<Object>{
         explicit Array(int size);
+        Array() = default;
     };
 
-    Object parseArray(const char *src);
+    Object parseArray(const char *src, bool verify=true);
 
     bool verify(const char* src);
 }
