@@ -7,7 +7,7 @@
 namespace PSON {
 
 struct Symbol {
-    enum typeenum{
+    enum type_enum{
         NUL,
         EQ,
         UN_MIN,
@@ -34,7 +34,7 @@ struct Symbol {
         float FP;
         int INT;
     }v;
-    operator std::string();
+    explicit operator std::string();
 };
 
 };

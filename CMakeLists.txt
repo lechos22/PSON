@@ -23,8 +23,8 @@ endif()
 
 add_library(PSON STATIC PSON.hpp PSON.cpp parser.hpp parser.cpp lexer.hpp lexer.cpp)
 
-add_executable(test.lexer tests/test.lexer.cpp PSON)
-target_link_libraries(test.lexer PSON)
+add_executable(test.lexer${CMAKE_EXECUTABLE_SUFFIX} tests/test.lexer.cpp PSON)
+target_link_libraries(test.lexer${CMAKE_EXECUTABLE_SUFFIX} PSON)
 
 enable_testing()
 
