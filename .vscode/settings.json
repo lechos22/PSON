@@ -1,0 +1,24 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "array": "cpp",
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "random": "cpp",
+        "istream": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "map": "cpp",
+        "atomic": "cpp",
+        "optional": "cpp",
+        "fstream": "cpp",
+        "numeric": "cpp",
+        "stdexcept": "cpp",
+        "typeinfo": "cpp",
+        "cctype": "cpp"
+    }
+}

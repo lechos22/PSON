@@ -21,16 +21,11 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     message(STATUS "Using MSVC compiler")
 endif()
 
-include_directories(.)
+add_library(PSON STATIC PSON.hpp PSON.cpp parser.hpp parser.cpp lexer.hpp lexer.cpp)
 
-file(COPY examples DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-add_library(PSON STATIC PSON.hpp PSON.cpp)
-
-add_executable(test.libPSON
-        PSON.hpp test.libpson.cpp)
-target_link_libraries(test.libPSON PSON)
+add_executable(test.lexer tests/test.lexer.cpp PSON)
+target_link_libraries(test.lexer PSON)
 
 enable_testing()
-add_test(NAME test.libPSON COMMAND test.libPSON)
 
+add_test(NAME lexer COMMAND test.lexer)
