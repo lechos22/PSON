@@ -42,7 +42,7 @@ namespace PSON {
             case NUL:
                 return "null";
             case STR:
-                return "\"" + *(v.STR) + "\"";
+                return "\"" + *(v.STR) + "\""; //TODO escape
             case FP:
                 ss << v.FP;
                 return ss.str();
@@ -53,7 +53,7 @@ namespace PSON {
             case MAP:
                 for (auto &i: *(v.MAP))
                     ss << i.first << "=" << (std::string) (*(i.second)) << ' ';
-                return "(" + ss.str().substr(0, ss.str().length() - 1) + ")"; // TODO
+                return "(" + ss.str().substr(0, ss.str().length() - 1) + ")";
             default:
                 throw std::exception();
         }
