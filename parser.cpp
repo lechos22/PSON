@@ -4,7 +4,6 @@
 namespace PSON {
 
     bool Parser::reduce() {
-        // todo semantics
         int length = (int) (buf.size());
         if (length >= 1 and buf.back().t == Symbol::L_SQ) {
             buf.back().t = Symbol::ARRAY;
