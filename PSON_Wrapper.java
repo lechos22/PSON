@@ -5,43 +5,49 @@ class PSON_Wrapper {
     static{
         System.loadLibrary("PSONJNI");
     }
-    private SWIGTYPE_p_void obj;
-    public Object get_value(){
+    public Object value;
+    public PSON_Wrapper(SWIGTYPE_p_void obj){
         switch(PSON.get_type(obj)){
-            case 'i':{
+            case 'i': {
                 Integer result = PSON.get_int(obj);
-                return result;
+                value = result;
+                break;
             }
-            case 'f':{
+            case 'f': {
                 Float result = PSON.get_float(obj);
-                return result;
+                value = result;
+                break;
             }
             case 'S':
-                return PSON.get_str(obj);
-            case 'A':{
+                value = PSON.get_str(obj);
+                break;
+            case 'A': {
                 var arr = new ArrayList<Object>();
                 for(long i = 0; i < PSON.get_len(obj); i++){
-                    arr.add(new PSON_Wrapper(PSON.get_at(obj, i)).get_value());
+                    arr.add(new PSON_Wrapper(PSON.get_at(obj, i)).value);
                 }
-                return arr;
+                value = arr;
+                break;
             }
             case 'M':{
                 var map = new HashMap<String, Object>();
                 String idx = "";
-                for(var i = PSON.get_map_iter(obj); PSON.get_map_iter_alive(obj, i); idx = PSON.get_map_next(i)){
-                    map.put(idx, new PSON_Wrapper(PSON.get_map_at(obj, idx)).get_value());
+                var i = PSON.get_map_iter(obj);
+                for(; PSON.get_map_iter_alive(obj, i); idx = PSON.get_map_next(i)){
+                    map.put(idx, new PSON_Wrapper(PSON.get_map_at(obj, idx)).value);
                 }
-                return map;
+                PSON.destroy_iter(i);
+                value = map;
+                break;
             }
             case '0':
-                return null;
+                value = null;
+                break;
         }
-        return new Object();
+        PSON.destroy(obj);
     }
-    public PSON_Wrapper(SWIGTYPE_p_void obj){
-        this.obj = obj;
-    }
-    public static PSON_Wrapper parse(String str){
-        return new PSON_Wrapper(PSON.parse(str));
+    public static Object parse(String str){
+        PSON_Wrapper pw = new PSON_Wrapper(PSON.parse(str));
+        return pw.value;
     }
 }

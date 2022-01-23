@@ -12,6 +12,8 @@ extern bool get_map_iter_alive(void* obj, void* iter);
 extern bool get_map_contains(void* obj, const char* idx);
 extern void* get_map_iter(void* iter);
 extern void* get_map_at(void* obj, const char* idx);
+extern void destroy_iter(void* iter);
+extern void destroy(void* obj);
 %}
 extern void* parse(const char* s);
 extern char get_type(void* obj);
@@ -25,3 +27,5 @@ extern bool get_map_iter_alive(void* obj, void* iter);
 extern bool get_map_contains(void* obj, const char* idx);
 extern void* get_map_iter(void* iter);
 extern void* get_map_at(void* obj, const char* idx);
+extern void destroy_iter(void* iter);
+extern void destroy(void* obj);

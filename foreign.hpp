@@ -14,5 +14,7 @@ extern const char* get_map_next(void* iter);
 extern bool get_map_iter_alive(void* obj, void* iter);
 extern bool get_map_contains(void* obj, const char* idx);
 extern void* get_map_iter(void* iter);
+extern void destroy_iter(void* iter);
+extern void destroy(void* obj);
 
 #endif
