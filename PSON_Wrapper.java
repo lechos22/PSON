@@ -47,7 +47,6 @@ class PSON_Wrapper {
         PSON.destroy(obj);
     }
     public static Object parse(String str){
-        PSON_Wrapper pw = new PSON_Wrapper(PSON.parse(str));
-        return pw.value;
+        return new PSON_Wrapper(PSON.parse(str)).value;
     }
 }
