@@ -13,14 +13,47 @@
 namespace PSON {
 
 // Structure declarations
-struct Map;
-struct Array;
-struct Object;
+    struct Object;
+    typedef std::map<std::string, Object*> Map;
+    typedef std::vector<Object*> Array;
 
 // Structure definitions
-struct Object{};
-struct Map : public std::map<std::string,Object>{};
-struct Array : public std::vector<Object>{};
+    struct Object {
+        enum type_enum {
+            NUL,
+            STR,
+            INT,
+            FP,
+            ARRAY,
+            MAP
+        } t;
+        union {
+            std::nullptr_t NUL;
+            std::string *STR;
+            int INT;
+            float FP;
+            Array *ARRAY;
+            Map *MAP;
+        } v;
+
+        Object() = default;
+
+        explicit Object(std::nullptr_t val);
+
+        explicit Object(std::string *val);
+
+        explicit Object(int val);
+
+        explicit Object(float val);
+
+        explicit Object(Array *val);
+
+        explicit Object(Map *val);
+
+        ~Object();
+
+        explicit operator std::string() const;
+    };
 
 }
 

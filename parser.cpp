@@ -1,51 +1,78 @@
-#include <sstream>
+#include <cmath>
 #include "parser.hpp"
-#define STRINGIFY(var) #var
 
-static inline std::string toString(auto n){
-    std::stringstream ss;
-    ss<<n;
-    return ss.str();
-}
+namespace PSON {
 
-namespace PSON{
-    Symbol::operator std::string(){
-        std::string result;
-        result += (std::string)
-            "["
-            + (
-                (this->t == NUL) ? STRINGIFY(NUL) :
-                (this->t == EQ) ? STRINGIFY(EQ) :
-                (this->t == UN_MIN) ? STRINGIFY(UN_MIN) :
-                (this->t == L_RND) ? STRINGIFY(L_RND) :
-                (this->t == L_SQ) ? STRINGIFY(L_SQ) :
-                (this->t == R_RND) ? STRINGIFY(R_RND) :
-                (this->t == R_SQ) ? STRINGIFY(R_SQ) :
-                (this->t == NUC_ID) ? STRINGIFY(NUC_ID) :
-                (this->t == UC_ID) ? STRINGIFY(UC_ID) :
-                (this->t == STR) ? STRINGIFY(STR) :
-                (this->t == INT) ? STRINGIFY(INT) :
-                (this->t == FP) ? STRINGIFY(FP) :
-                (this->t == ARRAY) ? STRINGIFY(ARRAY) :
-                (this->t == MAP) ? STRINGIFY(MAP) :
-                (this->t == OBJECT) ? STRINGIFY(OBJECT) :
-                "null"
-            )
-            + " "
-            + (
-                (this->t == NUL) ? "null" :
-                (this->t == NUC_ID) ? "\"" + *(this->v.NUC_ID) + "\"" :
-                (this->t == UC_ID) ? *(this->v.UC_ID) :
-                (this->t == STR) ? "\"" + *(this->v.STR) + "\"" :
-                (this->t == INT) ? toString(this->v.INT) :
-                (this->t == FP) ? toString(this->v.FP) :
-                // (this->t == ARRAY) ? STRINGIFY(ARRAY) :
-                // (this->t == MAP) ? STRINGIFY(MAP) :
-                // (this->t == OBJECT) ? STRINGIFY(OBJECT) :
-                "null"
-            )
-            + "]"
-        ;
-        return result;
+    bool Parser::reduce() {
+        // todo semantics
+        int length = (int) (buf.size());
+        if (length >= 1 and buf.back().t == Symbol::L_SQ) {
+            buf.back().t = Symbol::ARRAY;
+            buf.back().v.array = new Array;
+        } else if (length >= 2 and buf[length - 2].t == Symbol::ARRAY and buf.back().t == Symbol::OBJECT) {
+            buf[length - 2].v.array->push_back(buf.back().v.object);
+            buf.pop_back();
+        } else if (length >= 2 and buf[length - 2].t == Symbol::ARRAY and buf.back().t == Symbol::R_SQ) {
+            buf.pop_back();
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(buf.back().v.array);
+        } else if (length >= 1 and buf.back().t == Symbol::L_RND) {
+            buf.back().t = Symbol::MAP;
+            buf.back().v.map = new Map;
+        } else if (length >= 4 and buf[length - 4].t == Symbol::MAP and
+                   (buf[length - 3].t == Symbol::NUC_ID or buf[length - 3].t == Symbol::UC_ID) and
+                   buf[length - 2].t == Symbol::EQ and buf.back().t == Symbol::OBJECT) {
+            (*(buf[length - 4].v.map))[*(buf[length - 3].v.NUC_ID)] = buf.back().v.object;
+            delete buf[length - 3].v.NUC_ID;
+            buf.pop_back();
+            buf.pop_back();
+            buf.pop_back();
+        } else if (length >= 2 and buf[length - 2].t == Symbol::MAP and buf.back().t == Symbol::R_RND) {
+            buf.pop_back();
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(buf.back().v.map);
+        } else if (length >= 2 and buf[length - 2].t == Symbol::UN_MIN and buf.back().t == Symbol::OBJECT) {
+            buf[length - 2].t = Symbol::OBJECT;
+            buf[length - 2].v.object =
+                    (buf.back().t == Symbol::INT) ? new Object(buf.back().v.object->INT) :
+                    (buf.back().t == Symbol::INT) ? new Object(buf.back().v.object->FP) :
+                    new Object(FP_NAN);
+            buf.pop_back();
+        } else if (length >= 1 and buf.back().t == Symbol::STR) {
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(buf.back().v.STR);
+        } else if (length >= 1 and buf.back().t == Symbol::INT) {
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(buf.back().v.INT);
+        } else if (length >= 1 and buf.back().t == Symbol::UC_ID and lexer_p->preview_next().t != Symbol::EQ) {
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(buf.back().v.UC_ID);
+        } else if (length >= 1 and buf.back().t == Symbol::FP) {
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(buf.back().v.FP);
+        } else if (length >= 1 and buf.back().t == Symbol::NUL) {
+            buf.back().t = Symbol::OBJECT;
+            buf.back().v.object = new Object(nullptr);
+        } else {
+            return false;
+        }
+        return true;
     }
-};
+
+    Parser::Parser(Lexer &lexer) {
+        lexer_p = &lexer;
+        for (Symbol s = lexer.next(); !(lexer.eof()); s = lexer.next()) {
+            buf.push_back(s);
+            while (reduce());
+        }
+        Symbol s = lexer.preview_next();
+        buf.push_back(s);
+        while (reduce());
+        if(buf.size() != 1) throw std::exception();
+        if(buf.front().t != Symbol::OBJECT) throw std::exception();
+        result = buf.front().v.object;
+    }
+
+    Parser::~Parser() = default;
+
+}
