@@ -19,17 +19,17 @@ class PSON_Wrapper {
             case 'S':
                 return PSON.get_str(obj);
             case 'A':{
-                var arr = new ArrayList<PSON_Wrapper>();
+                var arr = new ArrayList<Object>();
                 for(long i = 0; i < PSON.get_len(obj); i++){
-                    arr.add(new PSON_Wrapper(PSON.get_at(obj, i)));
+                    arr.add(new PSON_Wrapper(PSON.get_at(obj, i)).get_value());
                 }
                 return arr;
             }
             case 'M':{
-                var map = new HashMap<String, PSON_Wrapper>();
+                var map = new HashMap<String, Object>();
                 String idx = "";
                 for(var i = PSON.get_map_iter(obj); PSON.get_map_iter_alive(obj, i); idx = PSON.get_map_next(i)){
-                    map.put(idx, new PSON_Wrapper(PSON.get_map_at(obj, idx)));
+                    map.put(idx, new PSON_Wrapper(PSON.get_map_at(obj, idx)).get_value());
                 }
                 return map;
             }
