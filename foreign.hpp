@@ -1,6 +1,6 @@
 #ifndef PSON__FOREIGN_HPP
 #define PSON__FOREIGN_HPP
-#include <PSON.hpp>
+#include <PSON_PY.hpp>
 
 extern void* parse(const char* s);
 extern char get_type(void* obj);

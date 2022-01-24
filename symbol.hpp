@@ -2,7 +2,7 @@
 #define PSON__SYMBOL_H
 
 #include <string>
-#include "PSON.hpp"
+#include "PSON_PY.hpp"
 
 namespace PSON {
 

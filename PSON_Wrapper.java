@@ -1,7 +1,11 @@
+package com.lechos22i.pson;
+
+import com.lechos22i.pson.PSON;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class PSON_Wrapper {
+public class PSON_Wrapper {
     static{
         System.loadLibrary("PSONJNI");
     }
